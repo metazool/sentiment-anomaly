@@ -1,1 +1,3 @@
 praw
+sqlalchemy
+psycopg2-binary
