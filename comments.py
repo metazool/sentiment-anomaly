@@ -32,11 +32,9 @@ if __name__ == '__main__':
         comments = submission.comments.list()
         for comment in comments:
             if isinstance(comment, RedditComment):
-                print(comment.body)
                 store_comment(comment, db)
             if isinstance(comment, MoreComments):
                 for more in comment.comments:
-                    print(more.body)
                     store_comment(more, db)
 
         post.num_comments = submission.num_comments

@@ -41,6 +41,9 @@ def store_comment(comment, db):
     seen = db.query(Comment).get(comment.id)
     if seen:
         return
+    else:
+        # We want to see the new output too
+        print(comment.body)
     comment = Comment(id=comment.id,
                       body=comment.body,
                       score=comment.score,
