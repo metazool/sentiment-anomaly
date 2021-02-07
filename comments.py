@@ -27,15 +27,16 @@ if __name__ == '__main__':
                 db.commit()
             continue
 
-        # We're not seeing everything, with the defaults
-        submission.comments.replace_more(128)
+        # replace_more(None) -- no limit to comments
+        # but may hit the API heavily?
+        submission.comments.replace_more(None)
         comments = submission.comments.list()
         for comment in comments:
             if isinstance(comment, RedditComment):
-                store_comment(comment, db)
+                store_comment(comment, db, post=submission)
             if isinstance(comment, MoreComments):
                 for more in comment.comments:
-                    store_comment(more, db)
+                    store_comment(more, db, post=submission)
 
         post.num_comments = submission.num_comments
         db.commit()
