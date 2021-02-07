@@ -1,8 +1,12 @@
 gensim
+#kmeans-pytorch
 nltk
 numpy
 pandas
 praw
+psycopg2-binary
 sklearn
 sqlalchemy
-psycopg2-binary
+torchtext
+git+https://github.com/maciejkula/glove-python.git
+git+https://github.com/subhadarship/kmeans_pytorch.git

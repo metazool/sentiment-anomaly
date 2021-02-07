@@ -80,5 +80,6 @@ def store_submission(submission, db):
                      selftext=submission.selftext,
                      num_comments=submission.num_comments,
                      flair=flair,
+                     defunct=False,
                      created_utc=int(submission.created_utc))
     db.add(sub)
