@@ -16,8 +16,8 @@ def clean_data(w):
     w = w.lower()
     words = w.split()
     # don't filter all non-alphanumerics, so we keep emojis
-    words = [re.sub(r'[\^\>\,\.\s\?\!\*\"]+$', '', w) for w in words]
-    words = [re.sub(r'^[\^\>\,\.\s\?\!\*\"]+', '', w) for w in words]
+    words = [re.sub(r'[\“\'\[\^\>\,\.\s\?\!\*\"]+$', '', w) for w in words]
+    words = [re.sub(r'^[\“\'\[\^\>\,\.\s\?\!\*\"]+', '', w) for w in words]
     words = filter(lambda x: x not in stopwords_list, words)
     words = filter(lambda x: 'http' not in x, words)
     words = filter(lambda x: '[gif]' not in x, words)
@@ -25,8 +25,8 @@ def clean_data(w):
 
 
 class CommentsWords():
-    def __init__(self, db):
-        self.query = db.query(Comment)
+    def __init__(self, db, score=0):
+        self.query = db.query(Comment).filter(score >= score)
 
     def __iter__(self):
         for message in self.query:
@@ -52,29 +52,31 @@ def co_occurrence():
     return dct, term_term_mat
 
 
-def glove_corpus():
+def glove_corpus(score=0):
     corpus_model = Corpus()
-    corpus_model.fit(CommentsWords(session()), window=10)
+    corpus_model.fit(CommentsWords(session(), score=score), window=10)
     return corpus_model
 
 
-def train_word2vec(epochs=50):
+def train_word2vec(epochs=50, score=0):
+    """Word2Vec for all comments
+    Option for minimum comment score"""
     db = session()
     model = Word2Vec(min_count=3, window=3, size=300)
 
-    model_input = CommentsWords(db)
+    model_input = CommentsWords(db, score=score)
     model.build_vocab(model_input)
     model.train(model_input, total_examples=model.corpus_count,
                 epochs=50)  # Add callbacks, if required
     model.wv.save_word2vec_format('reddit_w2v_model.bin', binary=True)
 
 
-def train_glove(epochs=50, threads=1):
+def train_glove(epochs=50, threads=1, score=0):
     """Glove wants a co-occurrence matrix in certain form
     https://pypi.org/project/glove/
     Glove-python does more for you but requires python < 3.7
     """
-    corpus_model = glove_corpus()
+    corpus_model = glove_corpus(score=score)
     glove = Glove(no_components=100, learning_rate=0.05)
     glove.fit(corpus_model.matrix, epochs=epochs,
               no_threads=threads, verbose=True)

@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
         # replace_more(None) -- no limit to comment traversal
         # but may hit the API too heavily?
-        submission.comments.replace_more(None)
+        submission.comments.replace_more(128)
         comments = submission.comments.list()
         for comment in comments:
             if isinstance(comment, RedditComment):
