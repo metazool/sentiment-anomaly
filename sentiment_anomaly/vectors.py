@@ -4,10 +4,13 @@ import re
 from gensim.models import Word2Vec
 from gensim.matutils import corpus2csc
 from gensim.corpora import Dictionary
-from glove import Glove, Corpus
+try:
+    from glove import Glove, Corpus
+except ModuleNotFoundError:
+    pass
 from nltk.corpus import stopwords
 import numpy as np
-from sentiment_anomaly.db import session, Comment
+from sentiment_anomaly.db import session, Comment, delete_autocomments
 
 stopwords_list = stopwords.words('english')
 
@@ -26,6 +29,8 @@ def clean_data(w):
 
 class CommentsWords():
     def __init__(self, db, score=0):
+        # Trigger deletion of repetitive autocomments
+        delete_autocomments(db)
         self.query = db.query(Comment).filter(score >= score)
 
     def __iter__(self):

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, relationship
 
 CONN = 'postgresql+psycopg2://sent:sent@localhost/sent'
@@ -83,3 +83,16 @@ def store_submission(submission, db):
                      defunct=False,
                      created_utc=int(submission.created_utc))
     db.add(sub)
+
+
+def delete_autocomments(db):
+    """Delete comment records created by automated processes"""
+    autocomments = [
+            "%action was performed automatically%"
+            ]
+    for comment in autocomments:
+        autos = db.query(Comment).filter(
+                func.lower(Comment.body).like(comment))
+        for post in autos:
+            db.delete(post)
+    db.commit()
